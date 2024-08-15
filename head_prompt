@@ -1,0 +1,75 @@
+C. HMSFF Module
+The HMSFF module proposed in this article aims to obtain
+the discriminative information of the facial local region, texture,
+and shape at different scales while reducing interlayer feature
+interference. First, the features of L, M1, M3, and H layers are
+adaptively assigned different weights by the spatial attention
+module (SAM) [45] to enhance the distinctiveness of the features
+of different layers. Second, the H and L layers features are fused
+with their neighboring middle-layer features to generate hierarchical local features while reducing the interference of high-level
+and low-level features. Finally, the features of ML-MSFF and
+MH-MSFF are fused to obtain the hierarchical multiscale fusion
+feature FHMSFF, which enhances the expression of the facial
+local information. We will detail the ML-MSFF and MH-MSFF
+of MSFF as follows.
+1) ML-MSFF Module: The architecture of the ML-MSFF
+module is illustrated in Fig. 2(a). To capture more texture and
+contour details in the low-level facial features, ML-MSFF takes
+a three-step strategy. First, the SAM module learns the L layer
+features, as shown in Fig. 2(c), to obtain attention mappingMLS,
+which is multiplied with the feature FL of the L layer to enhance
+the expression of facial rigid region features. In the cause of
+realizing the fusion of adjacent layer features, the enhanced
+features are down-sampled to the same size as the features of the
+M1 layer, and then the feature FLD of the LD layer is obtained.
+Second, FLD is connected with feature FM1D of M1D layer,
+where SAM calculates the feature FM1 of M1 layer to obtain
+the attention map FM1S , and then FM1S is multiplied by FM1
+to obtain the FM1D . Then, the connected features are processed
+to form the fusion feature FMLD of the MLD layer. Finally,
+the FMLD is down-sampled and convolved to obtain the final multiscale fusion feature FML−MSFF of the mid-low adjacent
+layers.
+The calculation process of the ML-MSFF module can be
+described as follows:
+FML−MSFF = Conv8×8 (MaxPool17×17 (FMLD ))
+FMLD = Conv1×1 (Concat(FLD , FM1D ))
+FLD = MaxPool7×7 (MLS × FL)
+FM1D = M1S × FM1
+MLS = Ms (FL)
+M1S = Ms (FM1 ) (3)
+where the Conv8×8, Conv1×1, and Conv7×7 are the convolution
+operations. The M axP ool17×17 and M axP ool7×7 are the maxpooling operations. Ms stands for SAM function as (4). For
+MLS, F of (4) represents the L layer feature FL. For M1S, F
+of (4) stands for the M1 layer feature FM1 . The Mean represents
+averaging by channel, and the Max means maxing by channel. In
+addition, the FML−MSFF is FML−MSFF ∈ R1×1×CML , and the
+CML stands for the number of the channels of the FML−MSFF.
+Ms = sigmoid (Conv7×7 [Mean (F) ; Max (F)]) (4)
+
+
+2) MH-MSFF Module: In order to obtain identity category
+information in high-level features, the MH-MSFF model fuses
+the feature FH of the H layer and the feature FM3 of the M3
+layer, as shown in the MH-MSFF Module of Fig. 2(a).
+First, the M3 and H layers features are learned by SAM, which
+forms the attention mappingM3S andMHS, respectively. Then,
+theM3S andMHS are multiplied with the FM3 and FH, respectively; the features of the processed M3 layer are down-sampled
+to the same size as the features of H layer to form M3D and
+HD layers features, respectively. After, the feature FM3D of
+the M3D layer and the feature FHD of the HD layer are fused.
+The fused features are low resolution. Hence, we adopt a 3 × 3
+kernel instead of the 1 × 1 kernel of ML-MSFF to learn and
+down-sample the learned feature FMHD . Finally, the FMHD is
+extracted to form the multiscale fusion feature FMH−MSFF of
+the mid-high adjacent layers. The FMH−MSFF is calculated as:
+FMH−MSFF = Conv8×8 (MaxPool3×3 (FMHD ))
+FMHD = Conv3×3 (Concate (FM3D , FHD ))
+FM3D = MaxPool7×7 (M3S × FM3 )
+FHD = MHS × FH
+M3S = Ms (FM3 )
+MHS = Ms (FH) (5)
+where the details of the Ms function can be found in (4). For
+M3S, F represents the feature FM3 of the M3 layer, and for
+MHS, F stands for the feature FH of the H layer. In addition,
+the feature FMH−MSFF is FMH−MSFF ∈ R1×1×CMH , and the
+CMH stands for the number of channels of the FMH−MSFF.
